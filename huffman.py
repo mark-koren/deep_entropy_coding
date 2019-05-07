@@ -108,12 +108,11 @@ class HuffmanCoding:
 			b.append(int(byte, 2))
 		return b
 
-
-	def compress(self):
+	def create_coding(self):
 		filename, file_extension = os.path.splitext(self.path)
 		output_path = filename + ".bin"
 
-		with open(self.path, 'r+') as file, open(output_path, 'wb') as output:
+		with open(self.path, 'r+') as file:
 			text = file.read()
 			text = text.rstrip()
 
@@ -121,6 +120,13 @@ class HuffmanCoding:
 			self.make_heap(frequency)
 			self.merge_nodes()
 			self.make_codes()
+
+	def compress(self):
+		filename, file_extension = os.path.splitext(self.path)
+		output_path = filename + ".bin"
+		with open(self.path, 'r+') as file, open(output_path, 'wb') as output:
+			text = file.read()
+			text = text.rstrip()
 
 			encoded_text = self.get_encoded_text(text)
 			padded_encoded_text = self.pad_encoded_text(encoded_text)
