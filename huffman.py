@@ -88,9 +88,14 @@ class HuffmanCoding:
 
     def get_encoded_array(self,data):
         encoded_array = []
+        size = 0
         for character in data:
             encoded_array.append(self.codes[character])
-        return encoded_array
+            size += len(self.codes[character])
+        # for i in range(data.shape[0]):
+            # encoded_array.append(self.codes[character])
+            # size += len(self.codes[character])
+        return encoded_array, size
 
     def pad_encoded_text(self, encoded_text):
         extra_padding = 8 - len(encoded_text) % 8
@@ -136,11 +141,11 @@ class HuffmanCoding:
         filename, file_extension = os.path.splitext(self.path)
         output_path = filename + "_encoded.p"
         with open(output_path, 'wb') as output:
-            encoded_array = self.get_encoded_array(data)
+            encoded_array, size = self.get_encoded_array(data)
             pickle.dump(encoded_array, output)
 
             print("Compressed")
-        return output_path
+        return output_path, size
 
     def compress(self):
         filename, file_extension = os.path.splitext(self.path)
