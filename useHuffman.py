@@ -43,7 +43,8 @@ with open('./DJIEncoded.p', 'rb') as f:
 	        # print("cluster ", cluster, ": ", np.argwhere(kmeans.labels_ == cluster).squeeze().tolist())
 	        cluster_data = []
 	        for i in np.argwhere(labels == cluster).reshape(-1).tolist():
-	        	cluster_data += parsed_data[i*(data.shape[1]//16):(i+1)*(data.shape[1]//16)]
+                if i < data_test:
+	        	  cluster_data += parsed_data[i*(data.shape[1]//16):(i+1)*(data.shape[1]//16)]
 
 	        # cluster_data = [parsed_data[i*(data.shape[1]//16):(i+1)*(data.shape[1]//16)] for i in np.argwhere(labels == cluster).reshape(-1).tolist()]
 	        # cluster_data = parsed_array(np.argwhere(kmeans.labels_ == cluster))
@@ -115,6 +116,8 @@ with open('./DJIEncoded.p', 'rb') as f:
 
     # print("Total: ", size)
     print(size_array)
+    print("Train unencoded: ", data[0:data_train, :].shape[1]*data_train*16)
+    print("Test unencoded: ", data[data_test:-1, :].shape[1]*data[data_test, :].shape[1]*16)
     pdb.set_trace()
         # output_path, size = h.compress_from_binary(data)
         # print("Compressed in ", time.time() - start, " seconds")
