@@ -6,8 +6,8 @@ from garage.tf.algos import PPO
 from garage.tf.envs import TfEnv
 from garage.tf.policies import CategoricalMLPPolicy
 
-env = TfEnv(HuffmanEnv(data_file ='/home/mark/Research/deep_entropy_coding/DJIEncoded.p',
-                                 parsed_file='/home/mark/Research/deep_entropy_coding/DJIParsed.p',
+env = TfEnv(HuffmanEnv(data_file ='/home/mkoren/deep_entropy_coding/DJIEncoded.p',
+                                 parsed_file='/home/mkoren/deep_entropy_coding/DJIParsed.p',
                                  num_classes=16))
 
 policy = CategoricalMLPPolicy(
