@@ -47,13 +47,13 @@ class HuffmanEnv(gym.Env, Serializable):
         self.classes[self.access_array[self.index]] = action
         self.index += 1
 
-        reward = 0
+        reward = 1
         done = False
         obs = None
 
         if self.index >= self.dataset.shape[0]:
             #All examples classified, find reward
-            print(self.classes)
+            # print(self.classes)
             for j in range(self.num_classes):
                 self.class_data = []
                 for i in np.argwhere(self.classes == j).reshape(-1).tolist():
@@ -68,7 +68,7 @@ class HuffmanEnv(gym.Env, Serializable):
             obs = self.dataset[self.access_array[self.index],...]
 
         return Step(observation=obs,
-                    reward=reward,
+                    reward=-np.log(reward),
                     done=done,
                     info=None)
 
