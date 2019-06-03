@@ -1,4 +1,5 @@
 from garage.baselines import LinearFeatureBaseline
+from garage.tf.baselines import DeterministicMLPBaseline
 from garage.envs import normalize
 from huffman_env import HuffmanEnv
 from garage.tf.algos import TRPO
@@ -13,7 +14,8 @@ env = TfEnv(HuffmanEnv(data_file ='/home/mkoren/deep_entropy_coding/DJIEncoded.p
 policy = CategoricalMLPPolicy(
     name="policy", env_spec=env.spec, hidden_sizes=([32]))
 
-baseline = LinearFeatureBaseline(env_spec=env.spec)
+# baseline = LinearFeatureBaseline(env_spec=env.spec)
+baseline = DeterministicMLPBaseline(env_spec=env.spec)
 
 # algo = TRPO(
 #     env=env,
