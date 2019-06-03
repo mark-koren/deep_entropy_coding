@@ -53,15 +53,16 @@ class HuffmanEnv(gym.Env, Serializable):
 
         if self.index >= self.dataset.shape[0]:
             #All examples classified, find reward
+            print(self.classes)
             for j in range(self.num_classes):
                 self.class_data = []
                 for i in np.argwhere(self.classes == j).reshape(-1).tolist():
                     self.class_data += self.parsed[i*(self.dataset.shape[1]//16):(i+1)*(self.dataset.shape[1]//16)]
-
-                h = HuffmanCoding('DJIEncoded.txt')
-                h.create_coding_from_binary(self.class_data)
-                encoded_array, size = h.get_encoded_array(self.class_data)
-                reward += size
+                if len(self.class_data) > 0:
+                    h = HuffmanCoding('DJIEncoded.txt')
+                    h.create_coding_from_binary(self.class_data)
+                    encoded_array, size = h.get_encoded_array(self.class_data)
+                    reward += size
             done = True
         else:
             obs = self.dataset[self.access_array[self.index],...]
