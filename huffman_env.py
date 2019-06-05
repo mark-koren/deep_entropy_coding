@@ -53,7 +53,7 @@ class HuffmanEnv(gym.Env, Serializable):
 
         if self.index >= self.dataset.shape[0]:
             #All examples classified, find reward
-            #print(self.classes)
+            # print(self.classes)
             for j in range(self.num_classes):
                 self.class_data = []
                 for i in np.argwhere(self.classes == j).reshape(-1).tolist():
