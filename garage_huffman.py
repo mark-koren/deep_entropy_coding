@@ -45,15 +45,15 @@ logger.push_prefix("[%s] " % args.exp_name)
 env = TfEnv(HuffmanEnv(data_file ='/home/mkoren/deep_entropy_coding/DJIEncoded.p',
                                  parsed_file='/home/mkoren/deep_entropy_coding/DJIParsed8.p',
                                  freq_file='/home/mkoren/deep_entropy_coding/DJIFreq8.p',
-                                 num_classes=1,
+                                 num_classes=16,
                                  width=8))
 
 policy = CategoricalMLPPolicy(
     name="policy", env_spec=env.spec, hidden_sizes=(128,64,32))
 
-# baseline = LinearFeatureBaseline(env_spec=env.spec)
+baseline = LinearFeatureBaseline(env_spec=env.spec)
 #baseline = DeterministicMLPBaseline(env_spec=env.spec)
-baseline = GaussianMLPBaseline(env_spec=env.spec)
+# baseline = GaussianMLPBaseline(env_spec=env.spec)
 
 # algo = TRPO(
 #     env=env,
