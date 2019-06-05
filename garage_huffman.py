@@ -20,7 +20,8 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='.deep_entropy_coding/run6')
+parser.add_argument('--log_dir', type=str, default='deep_entropy_coding/run6')
+parser.add_argument('--path', type=str, default='/home/mkoren/')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -42,14 +43,14 @@ logger.set_snapshot_gap(args.snapshot_gap)
 logger.set_log_tabular_only(args.log_tabular_only)
 logger.push_prefix("[%s] " % args.exp_name)
 
-env = TfEnv(HuffmanEnv(data_file ='/home/mkoren/deep_entropy_coding/DJIEncoded.p',
-                                 parsed_file='/home/mkoren/deep_entropy_coding/DJIParsed8.p',
-                                 freq_file='/home/mkoren/deep_entropy_coding/DJIFreq8.p',
-                                 num_classes=16,
+env = TfEnv(HuffmanEnv(data_file =args.path+'deep_entropy_coding/DJIEncoded.p',
+                                 parsed_file=args.path+'deep_entropy_coding/DJIParsed8.p',
+                                 freq_file=args.path+'deep_entropy_coding/DJIFreq8.p',
+                                 num_classes=1,
                                  width=8))
 
 policy = CategoricalMLPPolicy(
-    name="policy", env_spec=env.spec, hidden_sizes=(128,64,32))
+    name="policy", env_spec=env.spec, hidden_sizes=(512,128,64,32))
 
 baseline = LinearFeatureBaseline(env_spec=env.spec)
 #baseline = DeterministicMLPBaseline(env_spec=env.spec)
@@ -69,7 +70,7 @@ algo = PPO(
     env=env,
     policy=policy,
     baseline=baseline,
-    batch_size=1000,
+    batch_size=10000,
     max_path_length=1000,
     n_itr=11,
     discount=1.0,
