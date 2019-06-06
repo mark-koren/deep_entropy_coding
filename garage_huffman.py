@@ -7,9 +7,11 @@ from garage.tf.algos import TRPO
 from garage.tf.algos import PPO
 from garage.tf.envs import TfEnv
 from garage.tf.policies import CategoricalMLPPolicy
+from garage.tf.policies import CategoricalLSTMPolicy
 from garage.misc import logger
 import argparse
 import os.path as osp
+import tensorflow as tf
 
 # Logger Params
 parser = argparse.ArgumentParser()
@@ -46,14 +48,22 @@ logger.push_prefix("[%s] " % args.exp_name)
 env = TfEnv(HuffmanEnv(data_file =args.path+'deep_entropy_coding/DJIEncoded.p',
                                  parsed_file=args.path+'deep_entropy_coding/DJIParsed8.p',
                                  freq_file=args.path+'deep_entropy_coding/DJIFreq8.p',
-                                 num_classes=1,
+                                 num_classes=16,
                                  width=8))
 
-policy = CategoricalMLPPolicy(
-    name="policy", env_spec=env.spec, hidden_sizes=(512,128,64,32))
-
+# policy = CategoricalMLPPolicy(
+#     name="policy", env_spec=env.spec, hidden_sizes=(512,128,64,32))
+policy = CategoricalLSTMPolicy(env_spec=env.spec,
+                 name="policy",
+                 hidden_dim=64,
+                 feature_network=None,
+                 prob_network=None,
+                 state_include_action=True,
+                 hidden_nonlinearity=tf.tanh,
+                 forget_bias=1.0,
+                 use_peepholes=True)
 baseline = LinearFeatureBaseline(env_spec=env.spec)
-#baseline = DeterministicMLPBaseline(env_spec=env.spec)
+# baseline = DeterministicMLPBaseline(env_spec=env.spec)
 # baseline = GaussianMLPBaseline(env_spec=env.spec)
 
 # algo = TRPO(
@@ -74,7 +84,7 @@ algo = PPO(
     max_path_length=1000,
     n_itr=11,
     discount=1.0,
-    step_size=1.0,
-    optimizer_args=dict(batch_size=1000, max_epochs=10),
+    step_size=0.1,
+    optimizer_args=dict(batch_size=32, max_epochs=10),
     plot=False)
 algo.train()
