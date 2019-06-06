@@ -1,6 +1,7 @@
 from garage.baselines import LinearFeatureBaseline
 from garage.tf.baselines import DeterministicMLPBaseline
 from garage.tf.baselines import GaussianMLPBaseline
+from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.envs import normalize
 from huffman_env import HuffmanEnv
 from garage.tf.algos import TRPO
@@ -8,6 +9,7 @@ from garage.tf.algos import PPO
 from garage.tf.envs import TfEnv
 from garage.tf.policies import CategoricalMLPPolicy
 from garage.tf.policies import CategoricalLSTMPolicy
+from garage.tf.core.network import MLP
 from garage.misc import logger
 import argparse
 import os.path as osp
@@ -53,38 +55,58 @@ env = TfEnv(HuffmanEnv(data_file =args.path+'deep_entropy_coding/DJIEncoded.p',
 
 # policy = CategoricalMLPPolicy(
 #     name="policy", env_spec=env.spec, hidden_sizes=(512,128,64,32))
+feature_network = MLP(output_dim=256,
+            hidden_sizes=(1024,512),
+            hidden_nonlinearity=tf.nn.relu,
+            output_nonlinearity=tf.nn.relu,
+            name='MLP',
+            # hidden_w_init=ly.XavierUniformInitializer(),
+            # hidden_b_init=tf.zeros_initializer(),
+            # output_w_init=ly.XavierUniformInitializer(),
+            # output_b_init=tf.zeros_initializer(),
+            input_var=env.observation_space,
+            input_layer=None,
+            input_shape=(256,),
+            batch_normalization=False,
+            weight_normalization=False,
+    )
 policy = CategoricalLSTMPolicy(env_spec=env.spec,
                  name="policy",
-                 hidden_dim=64,
-                 feature_network=None,
+                 hidden_dim=1024,
+                 feature_network=feature_network,
                  prob_network=None,
-                 state_include_action=True,
+                 state_include_action=False,
                  hidden_nonlinearity=tf.tanh,
                  forget_bias=1.0,
                  use_peepholes=True)
 baseline = LinearFeatureBaseline(env_spec=env.spec)
 # baseline = DeterministicMLPBaseline(env_spec=env.spec)
 # baseline = GaussianMLPBaseline(env_spec=env.spec)
-
-# algo = TRPO(
-#     env=env,
-#     policy=policy,
-#     baseline=baseline,
-#     batch_size=4000,
-#     max_path_length=100,
-#     n_itr=40,
-#     discount=0.99,
-#     step_size=0.01,
-#     plot=True)
-algo = PPO(
+optimizer = ConjugateGradientOptimizer
+optimizer_args = {'hvp_approach':FiniteDifferenceHvp(base_eps=1e-5)}
+algo = TRPO(
     env=env,
     policy=policy,
     baseline=baseline,
-    batch_size=10000,
+    batch_size=50000,
     max_path_length=1000,
-    n_itr=11,
+    n_itr=101,
     discount=1.0,
-    step_size=0.1,
-    optimizer_args=dict(batch_size=32, max_epochs=10),
+    step_size=3.0,
+    clip_range=3.0,
+    optimizer=optimizer,
+    optimizer_args=optimizer_args,
     plot=False)
+# algo = PPO(
+#     env=env,
+#     policy=policy,
+#     baseline=baseline,
+#     batch_size=1000,
+#     max_path_length=1000,
+#     n_itr=101,
+#     discount=1.0,
+#     step_size=30.0,
+#     clip_range=30.0,
+#     optimizer_args=dict(batch_size=1000, max_epochs=10),
+#     plot=False)
 algo.train()
