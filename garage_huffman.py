@@ -20,7 +20,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='.')
+parser.add_argument('--log_dir', type=str, default='./deep_entropy_coding/run01')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -44,33 +44,33 @@ logger.push_prefix("[%s] " % args.exp_name)
 
 env = TfEnv(HuffmanEnv(data_file ='/home/mkoren/Research/deep_entropy_coding/DJIEncoded.p',
                                  parsed_file='/home/mkoren/Research/deep_entropy_coding/DJIParsed.p',
-                                 num_classes=16))
+                                 num_classes=8))
 
 policy = CategoricalMLPPolicy(
-    name="policy", env_spec=env.spec, hidden_sizes=((128,64)))
+    name="policy", env_spec=env.spec, hidden_sizes=((512,256,128,64)))
 
 # baseline = LinearFeatureBaseline(env_spec=env.spec)
 baseline = GaussianMLPBaseline(env_spec=env.spec)
 
-# algo = TRPO(
-#     env=env,
-#     policy=policy,
-#     baseline=baseline,
-#     batch_size=4000,
-#     max_path_length=100,
-#     n_itr=40,
-#     discount=0.99,
-#     step_size=0.01,
-#     plot=True)
-algo = PPO(
+algo = TRPO(
     env=env,
     policy=policy,
     baseline=baseline,
-    batch_size=3001,
+    batch_size=1000,
     max_path_length=1000,
-    n_itr=11,
+    n_itr=101,
     discount=1.0,
-    step_size=1.0,
-    optimizer_args=dict(batch_size=32, max_epochs=10),
+    step_size=10.0,
     plot=False)
+# algo = PPO(
+#     env=env,
+#     policy=policy,
+#     baseline=baseline,
+#     batch_size=1000,
+#     max_path_length=1000,
+#     n_itr=101,
+#     discount=1.0,
+#     step_size=3.0,
+#     optimizer_args=dict(batch_size=1000, max_epochs=10),
+#     plot=False)
 algo.train()
