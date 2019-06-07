@@ -17,23 +17,34 @@ from gym.spaces import Tuple as GymTuple
 import pdb
 
 class HuffmanEnv(gym.Env, Serializable):
-    def __init__(self, data_file, parsed_file, num_classes):
+    def __init__(self, data_file, parsed_file, freq_file, num_classes, width):
         self.dataset = None
         self.parsed = None
+        self.freq_count = None
         self.num_classes = num_classes
+        self.width = width
         with open(data_file, 'rb') as f:
             self.dataset = pickle.load(f)
 
         with open(parsed_file, 'rb') as f:
             self.parsed = pickle.load(f)
-        if self.dataset is None or self.parsed is None:
+
+        with open(freq_file, 'rb') as f:
+            self.freq_count = pickle.load(f)
+
+        if self.dataset is None or self.parsed is None or self.freq_count is None:
             print("ERROR: COULD NOT LOAD DATASET")
             exit()
 
         # low = np.zeros((self.dataset.shape[1], self.dataset.shape[2]))
         # high = np.ones((self.dataset.shape[1], self.dataset.shape[2]))
-        low = np.zeros((self.dataset.shape[1]))
-        high = np.ones((self.dataset.shape[1]))
+        #Pass in the whole image array
+        # low = np.zeros((self.dataset.shape[1]))
+        # high = np.ones((self.dataset.shape[1]))
+        #Pass in frequency counts
+        low = np.zeros((self.freq_count.shape[1]))
+        high = np.ones((self.freq_count.shape[1])) * (self.dataset.shape[1]//self.width)
+
         self.access_array = np.arange(self.dataset.shape[0])
         self.observation_space_obj = GymBox(low=low, high=high)
 
@@ -57,7 +68,7 @@ class HuffmanEnv(gym.Env, Serializable):
             for j in range(self.num_classes):
                 self.class_data = []
                 for i in np.argwhere(self.classes == j).reshape(-1).tolist():
-                    self.class_data += self.parsed[i*(self.dataset.shape[1]//16):(i+1)*(self.dataset.shape[1]//16)]
+                    self.class_data += self.parsed[i*(self.dataset.shape[1]//self.width):(i+1)*(self.dataset.shape[1]//self.width)]
                 if len(self.class_data) > 0:
                     h = HuffmanCoding('DJIEncoded.txt')
                     h.create_coding_from_binary(self.class_data)
@@ -65,7 +76,8 @@ class HuffmanEnv(gym.Env, Serializable):
                     reward += size
             done = True
         else:
-            obs = self.dataset[self.access_array[self.index],...]
+            # obs = self.dataset[self.access_array[self.index],...]
+            obs = self.freq_count[self.access_array[self.index], ...]
 
         return Step(observation=obs,
                     reward=-np.log(reward),
@@ -76,7 +88,8 @@ class HuffmanEnv(gym.Env, Serializable):
         self.index = 0
         np.random.shuffle(self.access_array)
 
-        return self.dataset[self.access_array[self.index],...]
+        # return self.dataset[self.access_array[self.index],...]
+        return self.freq_count[self.access_array[self.index], ...]
 
     @property
     def action_space(self):
