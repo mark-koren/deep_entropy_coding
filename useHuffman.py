@@ -112,7 +112,7 @@ with open('./DJIEncoded.p', 'rb') as f, open(
             size_array[j, 1] = cluster_sum[1] + data_cv * np.log2(num_clusters)
             size_array[j, 2] = cluster_sum[2] + data_test * np.log2(num_clusters)
         print(size_array)
-        size_data[0,...] = size_array
+        size_data[trial,...] = size_array
         print("\nTrial ", trial, " completed in: ", time.time() - start, "\n")
         start = time.time()
 

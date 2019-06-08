@@ -80,7 +80,7 @@ class HuffmanEnv(gym.Env, Serializable):
             obs = self.freq_count[self.access_array[self.index], ...]
 
         return Step(observation=obs,
-                    reward=-np.log(reward),
+                    reward=reward,
                     done=done,
                     info=None)
 
