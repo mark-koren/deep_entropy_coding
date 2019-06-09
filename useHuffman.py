@@ -18,7 +18,7 @@ path = "sample.txt"
 
 # pdb.set_trace()
 # h = HuffmanCoding(path)
-width = 16
+width = 8
 with open('./DJIEncoded.p', 'rb') as f, open(
     './DJIParsed' + str(width) + '.p', 'rb') as f2, open(
     'DJIFreq' + str(width) + '.p', 'rb') as f3, open(
@@ -56,9 +56,10 @@ with open('./DJIEncoded.p', 'rb') as f, open(
 
     total_freq_count = np.sum(freq_count, axis=0)
     parsed_array = np.array(parsed_data)
-    trials = 100
+    trials = 1
     start = time.time()
-    cluster_array = np.arange(16).tolist()[2:-1]
+    # cluster_array = np.arange(128, step=4).tolist()[1:]
+    cluster_array = [1]
     size_data = np.zeros((trials, len(cluster_array), 3))
     for trial in range(trials):
     # cluster_array = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
@@ -67,12 +68,14 @@ with open('./DJIEncoded.p', 'rb') as f, open(
         freq_count_adjusted = (10 * freq_count) + 1
         for j in range(len(cluster_array)):
             num_clusters = cluster_array[j]
-            kmeans = kmeans = KMeans(
-                n_clusters=num_clusters, 
-                 max_iter=1000, 
-                 verbose=0, 
-                 n_init=10).fit(freq_count[0:data_train])
-            labels = kmeans.predict(freq_count)
+            # kmeans = kmeans = KMeans(
+            #     n_clusters=num_clusters, 
+            #      max_iter=1000, 
+            #      verbose=0, 
+            #      n_init=10).fit(freq_count[0:data_train])
+            # labels = kmeans.predict(freq_count)
+            # pdb.set_trace()
+            labels = np.random.randint(low=0, high=num_clusters, size=(data.shape[0],))
             # pdb.set_trace()
             cluster_sizes = np.zeros((num_clusters,3))
             for cluster in range(num_clusters):
@@ -146,7 +149,7 @@ with open('./DJIEncoded.p', 'rb') as f, open(
     # print(size_array2)
     # print("Train unencoded: ", data[0:data_train, :].shape[1]*data_train*16)
     # print("Test unencoded: ", data[data_test:-1, :].shape[1]*data[data_test, :].shape[1]*16)
-    with open('Kmeans_results' + str(width) + '.p', 'wb') as fw:
+    with open('Baseline_results' + str(width) + '_2.p', 'wb') as fw:
         pickle.dump(size_data, fw)
     pdb.set_trace()
         # output_path, size = h.compress_from_binary(data)
